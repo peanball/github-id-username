@@ -1,19 +1,26 @@
 // ==UserScript==
 // @name        SAP GitHub User Name Display
 // @description Replaces D/I/C user names with the real names
-// @author      Alexander Lais (i551749)
 // @inject-into content
 // @match       *://github.tools.sap/*
-// @version     0.1-2021-11-14
 // ==/UserScript==
+
+// @author      Alexander Lais (i551749)
+// @version     0.2-2021-11-15
 
 // Based on:
 // - https://github.com/cgrail/github-chrome-fullname
 // - https://github.com/Elethom/github-fullname.safariextension
 
+// Feel free to customize the format!
+const format="{name} ({id})";
+
+
 const nodes = {};
 const modifiedNodes = [];
 const names = {};
+
+const userIdRegex = /^([di]\d{6}|c\d{7})$/gi
 
 const setName = n => {
   // Return if already modified
@@ -38,6 +45,11 @@ const replace = n => {
   // Get username
   let un = n.innerText.trim();
   if (un.length === 0) { return; }
+    
+  if (!un.match(userIdRegex)) {
+      return;
+  }
+
   const at = un.startsWith('@');
   if (at) { un = un.substring(1); }
   if (names[un]) {
@@ -58,7 +70,8 @@ const replace = n => {
       var match = searchRegex.exec(r.responseText)
       if (match) {
           // remove UserID from name, if it contains it.
-          var fixedName = match[1].replace(id,"").trim() + ` (${un})`;
+          const name = match[1].replace(id,"").trim();
+          var fixedName =  format.replace("{name}", name).replace("{id}", un);
           names[un] = fixedName;
           nodes[un].forEach(setName);
       }
@@ -77,10 +90,12 @@ const displayFullname = () => {
     'a.user-mention',                   // issue   - user mention
     'span.discussion-item-entity',      // issue   - assignee in timeline
     '.review-status-item.ml-6 strong',  // pr      - review status
+    'a[data-hovercard-type="user"]',    // insights - contributors (only with doubleclick)
   ].forEach( s => document.querySelectorAll(s).forEach(replace) );
 };
 
 // First time
 displayFullname();
 // Listen for pjax load
-window.addEventListener('pjax:complete', displayFullname);
+// window.addEventListener('pjax:complete', displayFullname);
+window.document.addEventListener('dblclick', displayFullname);
