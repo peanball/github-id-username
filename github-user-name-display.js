@@ -3,10 +3,12 @@
 // @description Replaces D/I/C user names with the real names
 // @inject-into content
 // @match       *://github.tools.sap/*
+// @match       *://github.wdf.sap.corp/*
+// @exclude     *://*/pages/*
 // ==/UserScript==
 
 // @author      Alexander Lais (i551749)
-// @version     0.2-2021-11-15
+// @version     0.3-2021-11-19
 
 // Based on:
 // - https://github.com/cgrail/github-chrome-fullname
@@ -20,7 +22,7 @@ const nodes = {};
 const modifiedNodes = [];
 const names = {};
 
-const userIdRegex = /^([di]\d{6}|c\d{7})$/gi
+const userIdRegex = /^\s*([di]\d{6}|c\d{7})\s*$/gi
 
 const setName = n => {
   // Return if already modified
@@ -91,6 +93,7 @@ const displayFullname = () => {
     'span.discussion-item-entity',      // issue   - assignee in timeline
     '.review-status-item.ml-6 strong',  // pr      - review status
     'a[data-hovercard-type="user"]',    // insights - contributors (only with doubleclick)
+    '.flash a',
   ].forEach( s => document.querySelectorAll(s).forEach(replace) );
 };
 
