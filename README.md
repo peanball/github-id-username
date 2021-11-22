@@ -23,5 +23,8 @@ For Safari, Userscript is recommended as it does as much as Tampermonkey but is 
 
 GitHub loads and renders some data dynamically, e.g. the contributors list on the insights page.
 
-Until a better way can be found, **double-clicking** on the page will run the replacer again, covering the names of contributors on such dynamically loaded pages.
+The script re-runs the replacement when the DOM was modified. Nodes that were already modified in a previous run are left intact.
 
+## TODO
+
+* [ ] Use localStorage to make a longer-term cache of user IDs to name mappings, resulting in fewer hits on the github enterprise server.

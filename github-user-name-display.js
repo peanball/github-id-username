@@ -8,11 +8,12 @@
 // ==/UserScript==
 
 // @author      Alexander Lais (i551749)
-// @version     0.3-2021-11-19
+// @version     0.4-2021-11-22
 
 // Based on:
 // - https://github.com/cgrail/github-chrome-fullname
 // - https://github.com/Elethom/github-fullname.safariextension
+// - https://stackoverflow.com/a/14570614
 
 // Feel free to customize the format!
 const format="{name} ({id})";
@@ -97,8 +98,35 @@ const displayFullname = () => {
   ].forEach( s => document.querySelectorAll(s).forEach(replace) );
 };
 
+var observeDOM = (function(){
+  var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+  return function( obj, callback ){
+    if( !obj || obj.nodeType !== 1 ) return; 
+
+    if( MutationObserver ){
+      // define a new observer
+      var mutationObserver = new MutationObserver(callback)
+
+      // have the observer observe foo for changes in children
+      mutationObserver.observe( obj, { childList:true, subtree:true })
+      return mutationObserver
+    }
+    
+    // browser support fallback
+    else if( window.addEventListener ){
+      obj.addEventListener('DOMNodeInserted', callback, false)
+      obj.addEventListener('DOMNodeRemoved', callback, false)
+      obj.addEventListener('DOMSubtreeModified', callback, false)
+        
+    }
+  }
+})();
+
+
 // First time
 displayFullname();
-// Listen for pjax load
-// window.addEventListener('pjax:complete', displayFullname);
-window.document.addEventListener('dblclick', displayFullname);
+// refresh on DOM changes
+observeDOM(document.body, displayFullname);
+
+
