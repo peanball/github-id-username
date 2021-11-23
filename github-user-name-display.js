@@ -8,7 +8,7 @@
 // ==/UserScript==
 
 // @author      Alexander Lais (i551749)
-// @version     0.4-2021-11-22
+// @version     0.5-2021-11-23
 
 // Based on:
 // - https://github.com/cgrail/github-chrome-fullname
@@ -16,12 +16,33 @@
 // - https://stackoverflow.com/a/14570614
 
 // Feel free to customize the format!
-const format="{name} ({id})";
+const format = "{name} ({id})";
 
+const localStorageKey = "sap.tools.github.idToName";
+
+const readLS = (item) => {
+  stored = window.localStorage.getItem(localStorageKey)
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      console.log("Could not load ID cache from local storage, initializing empty.", e);
+    }
+  }
+  return {};
+}
+
+const writeLS = (content) => {
+  if (content) {
+    window.localStorage.setItem(localStorageKey, JSON.stringify(content));
+  } else {
+    window.localStorage.removeItem(localStorageKey);
+  }
+}
 
 const nodes = {};
 const modifiedNodes = [];
-const names = {};
+const names = readLS() || {};
 
 const userIdRegex = /^\s*([di]\d{6}|c\d{7})\s*$/gi
 
@@ -48,9 +69,9 @@ const replace = n => {
   // Get username
   let un = n.innerText.trim();
   if (un.length === 0) { return; }
-    
+
   if (!un.match(userIdRegex)) {
-      return;
+    return;
   }
 
   const at = un.startsWith('@');
@@ -69,21 +90,22 @@ const replace = n => {
   // Query name
   const r = new XMLHttpRequest();
   r.onreadystatechange = () => {
-      var searchRegex = new RegExp(`<title>${un} \\((.*)\\)<\\/title>`, "g")
-      var match = searchRegex.exec(r.responseText)
-      if (match) {
-          // remove UserID from name, if it contains it.
-          const name = match[1].replace(id,"").trim();
-          var fixedName =  format.replace("{name}", name).replace("{id}", un);
-          names[un] = fixedName;
-          nodes[un].forEach(setName);
-      }
+    var searchRegex = new RegExp(`<title>${un} \\((.*)\\)<\\/title>`, "g")
+    var match = searchRegex.exec(r.responseText)
+    if (match) {
+      // remove UserID from name, if it contains it.
+      const name = match[1].replace(id, "").trim();
+      var fixedName = format.replace("{name}", name).replace("{id}", un);
+      names[un] = fixedName;
+      nodes[un].forEach(setName);
+      writeLS(names);
+    }
   };
   r.open('GET', `https://${window.location.hostname}/${un}`, true);
   r.send(null);
 };
 
-const displayFullname = () => {
+const displayFullName = () => {
   [
     'a.commit-author',                  // commits - author
     'div.commit-tease a[rel="author"]', // files   - author
@@ -95,38 +117,35 @@ const displayFullname = () => {
     '.review-status-item.ml-6 strong',  // pr      - review status
     'a[data-hovercard-type="user"]',    // insights - contributors (only with doubleclick)
     '.flash a',
-  ].forEach( s => document.querySelectorAll(s).forEach(replace) );
+  ].forEach(s => document.querySelectorAll(s).forEach(replace));
 };
 
-var observeDOM = (function(){
+var observeDOM = (function () {
   var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
-  return function( obj, callback ){
-    if( !obj || obj.nodeType !== 1 ) return; 
+  return function (obj, callback) {
+    if (!obj || obj.nodeType !== 1) return;
 
-    if( MutationObserver ){
+    if (MutationObserver) {
       // define a new observer
       var mutationObserver = new MutationObserver(callback)
 
       // have the observer observe foo for changes in children
-      mutationObserver.observe( obj, { childList:true, subtree:true })
+      mutationObserver.observe(obj, { childList: true, subtree: true })
       return mutationObserver
     }
-    
+
     // browser support fallback
-    else if( window.addEventListener ){
+    else if (window.addEventListener) {
       obj.addEventListener('DOMNodeInserted', callback, false)
       obj.addEventListener('DOMNodeRemoved', callback, false)
       obj.addEventListener('DOMSubtreeModified', callback, false)
-        
+
     }
   }
 })();
 
-
 // First time
-displayFullname();
+displayFullName();
 // refresh on DOM changes
-observeDOM(document.body, displayFullname);
-
-
+observeDOM(document.body, displayFullName);
