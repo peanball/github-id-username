@@ -8,7 +8,7 @@
 // ==/UserScript==
 
 // @author      Alexander Lais (i551749)
-// @version     0.5-2021-11-23
+// @version     0.6-2021-12-02
 
 // Based on:
 // - https://github.com/cgrail/github-chrome-fullname
@@ -44,7 +44,7 @@ const nodes = {};
 const modifiedNodes = [];
 const names = readLS() || {};
 
-const userIdRegex = /^\s*([di]\d{6}|c\d{7})\s*$/gi
+const userIdRegex = /^\s*@?([di]\d{6}|c\d{7})\s*$/gi
 
 const setName = n => {
   // Return if already modified
@@ -149,3 +149,4 @@ var observeDOM = (function () {
 displayFullName();
 // refresh on DOM changes
 observeDOM(document.body, displayFullName);
+
