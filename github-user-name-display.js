@@ -4,6 +4,9 @@
 // @inject-into content
 // @match       *://github.tools.sap/*
 // @match       *://github.wdf.sap.corp/*
+// @downloadURL https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
+// @updateURL   https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
+// @version     0.7-2022-01-12
 // @exclude     *://*/pages/*
 // ==/UserScript==
 
@@ -94,7 +97,7 @@ const replace = n => {
     var match = searchRegex.exec(r.responseText)
     if (match) {
       // remove UserID from name, if it contains it.
-      const name = match[1].replace(id, "").trim();
+      const name = match[1].replace(un, "").trim();
       var fixedName = format.replace("{name}", name).replace("{id}", un);
       names[un] = fixedName;
       nodes[un].forEach(setName);
@@ -149,4 +152,3 @@ var observeDOM = (function () {
 displayFullName();
 // refresh on DOM changes
 observeDOM(document.body, displayFullName);
-
