@@ -6,12 +6,11 @@
 // @match       *://github.wdf.sap.corp/*
 // @downloadURL https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
 // @updateURL   https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
-// @version     0.7-2022-01-12
+// @version     0.8-2022-10-26
 // @exclude     *://*/pages/*
 // ==/UserScript==
 
 // @author      Alexander Lais (i551749)
-// @version     0.6-2021-12-02
 
 // Based on:
 // - https://github.com/cgrail/github-chrome-fullname
@@ -24,7 +23,7 @@ const format = "{name} ({id})";
 const localStorageKey = "sap.tools.github.idToName";
 
 const readLS = (item) => {
-  stored = window.localStorage.getItem(localStorageKey)
+  const stored = window.localStorage.getItem(localStorageKey)
   if (stored) {
     try {
       return JSON.parse(stored);
