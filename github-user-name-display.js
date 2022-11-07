@@ -6,7 +6,7 @@
 // @match       *://github.wdf.sap.corp/*
 // @downloadURL https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
 // @updateURL   https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
-// @version     0.8-2022-10-26
+// @version     0.9-2022-11-07
 // @exclude     *://*/pages/*
 // ==/UserScript==
 
@@ -119,6 +119,7 @@ const displayFullName = () => {
     '.review-status-item.ml-6 strong',  // pr      - review status
     'a[data-hovercard-type="user"]',    // insights - contributors (only with doubleclick)
     '.flash a',
+    '.project-card a',
   ].forEach(s => document.querySelectorAll(s).forEach(replace));
 };
 
