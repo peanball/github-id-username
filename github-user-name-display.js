@@ -6,7 +6,7 @@
 // @match       *://github.wdf.sap.corp/*
 // @downloadURL https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
 // @updateURL   https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
-// @version     0.9-2022-11-07
+// @version     0.9.1-2022-11-08
 // @exclude     *://*/pages/*
 // ==/UserScript==
 
@@ -92,12 +92,12 @@ const replace = n => {
   // Query name
   const r = new XMLHttpRequest();
   r.onreadystatechange = () => {
-    var searchRegex = new RegExp(`<title>${un} \\((.*)\\)<\\/title>`, "g")
-    var match = searchRegex.exec(r.responseText)
+    const searchRegex = new RegExp(`<title>${un} \\((.*)\\)<\\/title>`, "g")
+    const match = searchRegex.exec(r.responseText)
     if (match) {
       // remove UserID from name, if it contains it.
       const name = match[1].replace(un, "").trim();
-      var fixedName = format.replace("{name}", name).replace("{id}", un);
+      const fixedName = format.replace("{name}", name).replace("{id}", un);
       names[un] = fixedName;
       nodes[un].forEach(setName);
       writeLS(names);
@@ -123,15 +123,15 @@ const displayFullName = () => {
   ].forEach(s => document.querySelectorAll(s).forEach(replace));
 };
 
-var observeDOM = (function () {
-  var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+const observeDOM = (function () {
+  const MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
   return function (obj, callback) {
     if (!obj || obj.nodeType !== 1) return;
 
     if (MutationObserver) {
       // define a new observer
-      var mutationObserver = new MutationObserver(callback)
+      const mutationObserver = new MutationObserver(callback)
 
       // have the observer observe foo for changes in children
       mutationObserver.observe(obj, { childList: true, subtree: true })
