@@ -10,7 +10,7 @@ Based on:
 
 Add this as user script to Userscripts (Safari 13+)
 
-Userscript is available for free from the App store.
+Userscripts is available for free from the App store.
 
 I haven't tested it with the iOS version of UserScripts yet.
 

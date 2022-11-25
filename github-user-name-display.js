@@ -4,9 +4,10 @@
 // @inject-into content
 // @match       *://github.tools.sap/*
 // @match       *://github.wdf.sap.corp/*
+// @match       *://github.com/*
 // @downloadURL https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
 // @updateURL   https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
-// @version     0.9.1-2022-11-08
+// @version     0.10.0-2022-11-25
 // @exclude     *://*/pages/*
 // ==/UserScript==
 
@@ -46,36 +47,44 @@ const nodes = {};
 const modifiedNodes = [];
 const names = readLS() || {};
 
-const userIdRegex = /^\s*@?([di]\d{6}|c\d{7})\s*$/gi
+const userIdRegex = /\b(@?(?:[di]\d{6}|c\d{7}))\b/gi
 
 const setName = n => {
   // Return if already modified
   if (modifiedNodes.includes(n)) { return; }
+
   // Get username
-  let un = n.innerText.trim();
-  const at = un.startsWith('@');
-  if (at) { un = un.substring(1); }
-  // Set username
-  if (at) {
-    // `@${name} (${un})`;
-    n.innerText = `@${names[un]}`;
+  let match
+  if (n.className.indexOf("tooltipped") > -1) {
+      match = n.getAttribute("aria-label").match(userIdRegex)
   } else {
-    // `${name} (@${un})`;
-    n.innerText = names[un];
+      match = n.innerText.match(userIdRegex)
   }
-  n.style.fontWeight = 600;
+    
+  let un = match[0];
+  if (n.hasAttribute('aria-label')) {
+      n.setAttribute('aria-label', n.getAttribute('aria-label').replace(userIdRegex, names[un]))
+  } else {
+      // Set username
+      n.innerText = n.innerText.replace(userIdRegex, names[un]);
+  }
+  
   modifiedNodes.push(n);
 };
 
 const replace = n => {
   // Get username
-  let un = n.innerText.trim();
-  if (un.length === 0) { return; }
-
-  if (!un.match(userIdRegex)) {
-    return;
+    
+  let match
+  if (n.className.indexOf("tooltipped") > -1) {
+      match = n.getAttribute("aria-label").match(userIdRegex)
+  } else {
+      match = n.innerText.match(userIdRegex)
   }
-
+  
+  if (!match) { return; }
+  const un = match[0]
+  
   const at = un.startsWith('@');
   if (at) { un = un.substring(1); }
   if (names[un]) {
@@ -120,6 +129,7 @@ const displayFullName = () => {
     'a[data-hovercard-type="user"]',    // insights - contributors (only with doubleclick)
     '.flash a',
     '.project-card a',
+    'button.tooltipped',
   ].forEach(s => document.querySelectorAll(s).forEach(replace));
 };
 
