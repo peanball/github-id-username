@@ -7,7 +7,7 @@
 // @match       *://github.com/*
 // @downloadURL https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
 // @updateURL   https://raw.githubusercontent.com/peanball/github-id-username-userscript/master/github-user-name-display.js
-// @version     0.10.0-2022-11-25
+// @version     0.10.1-2023-05-04
 // @exclude     *://*/pages/*
 // ==/UserScript==
 
@@ -47,7 +47,7 @@ const nodes = {};
 const modifiedNodes = [];
 const names = readLS() || {};
 
-const userIdRegex = /\b(@?(?:[di]\d{6}|c\d{7}))\b/gi
+const userIdRegex = /^\b(@?(?:[di]\d{6}|c\d{7}))\b$/gi
 
 const setName = n => {
   // Return if already modified
